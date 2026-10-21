@@ -43,6 +43,8 @@ type UsageReporter struct {
 	isNativeKey         bool
 	sessionID           string
 	parentSessionID     string
+	tenantID            string
+	businessAPIKeyID    string
 	source              string
 	reasoning           string
 	serviceTier         string
@@ -123,19 +125,21 @@ func NewUsageReporter(ctx context.Context, provider, model string, auth *cliprox
 		traceID = internallogging.GetRequestID(ctx)
 	}
 	reporter := &UsageReporter{
-		requestID:       uuid.NewString(),
-		traceID:         traceID,
-		provider:        provider,
-		baseURL:         baseURL,
-		model:           model,
-		alias:           strings.TrimSpace(alias),
-		requestedAt:     time.Now(),
-		apiKey:          apiKey,
-		accessProvider:  accessProvider,
-		isNativeKey:     isNativeKey,
-		sessionID:       sessionID,
-		parentSessionID: parentSessionID,
-		source:          resolveUsageSource(auth, apiKey),
+		requestID:        uuid.NewString(),
+		traceID:          traceID,
+		provider:         provider,
+		baseURL:          baseURL,
+		model:            model,
+		alias:            strings.TrimSpace(alias),
+		requestedAt:      time.Now(),
+		apiKey:           apiKey,
+		accessProvider:   accessProvider,
+		isNativeKey:      isNativeKey,
+		sessionID:        sessionID,
+		parentSessionID:  parentSessionID,
+		tenantID:         clientMeta.TenantID,
+		businessAPIKeyID: clientMeta.BusinessAPIKeyID,
+		source:           resolveUsageSource(auth, apiKey),
 		authType:        resolveUsageAuthType(auth),
 		reasoning:       usage.ReasoningEffortFromContext(ctx),
 		serviceTier:     usage.ServiceTierFromContext(ctx),
@@ -650,6 +654,8 @@ func (r *UsageReporter) buildRecordForModel(model string, detail usage.Detail, f
 		AccessProvider:      r.accessProvider,
 		SessionID:           r.sessionID,
 		ParentSessionID:     r.parentSessionID,
+		TenantID:            r.tenantID,
+		BusinessAPIKeyID:    r.businessAPIKeyID,
 		AuthID:              r.authID,
 		AuthIndex:           r.authIndex,
 		AccessTokenSHA256:   r.accessTokenFingerprint(),

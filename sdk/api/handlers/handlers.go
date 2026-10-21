@@ -321,6 +321,17 @@ func extractSessionIDsFromRequest(request *http.Request) (string, string) {
 // from headers, payload, and metadata and records them in ClientRequestMetadata.
 func EnrichContextWithSessionHierarchy(ctx context.Context, headers http.Header, payload []byte, metadata map[string]any) context.Context {
 	meta := logging.GetClientRequestMetadata(ctx)
+	if headers != nil {
+		if tid := strings.TrimSpace(headers.Get("X-HiMarket-Tenant-Id")); tid != "" {
+			meta.TenantID = tid
+		}
+		if akid := strings.TrimSpace(headers.Get("X-HiMarket-Api-Key-Id")); akid != "" {
+			meta.BusinessAPIKeyID = akid
+		}
+		if sid := strings.TrimSpace(headers.Get("X-HiMarket-Session-Id")); sid != "" && meta.SessionID == "" {
+			meta.SessionID = sid
+		}
+	}
 	if info, ok := coresession.ExtractSessionInfo(headers, payload, metadata); ok {
 		meta.SessionID = info.SessionID
 		meta.ParentSessionID = info.ParentSessionID
@@ -329,6 +340,13 @@ func EnrichContextWithSessionHierarchy(ctx context.Context, headers http.Header,
 		}
 		ctx = logging.WithClientRequestMetadata(ctx, meta)
 		return util.WithSessionID(ctx, meta.SessionID)
+	}
+	if meta.TenantID != "" || meta.BusinessAPIKeyID != "" || meta.SessionID != "" {
+		ctx = logging.WithClientRequestMetadata(ctx, meta)
+		if meta.SessionID != "" {
+			return util.WithSessionID(ctx, meta.SessionID)
+		}
+		return ctx
 	}
 	if meta.SessionID != "" || meta.ParentSessionID != "" || util.SessionIDFromContext(ctx) != "" {
 		meta.SessionID = ""

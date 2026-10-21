@@ -36,6 +36,7 @@ import (
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/store"
 	_ "github.com/router-for-me/CLIProxyAPI/v8/internal/translator"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/tui"
+	"github.com/router-for-me/CLIProxyAPI/v8/internal/usageplugin"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/util"
 	sdkAuth "github.com/router-for-me/CLIProxyAPI/v8/sdk/auth"
 	coreauth "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/auth"
@@ -630,6 +631,7 @@ func main() {
 	}
 	redisqueue.SetUsageStatisticsEnabled(cfg.UsageStatisticsEnabled)
 	redisqueue.SetRetentionSeconds(cfg.RedisUsageQueueRetentionSeconds)
+	usageplugin.RegisterFromEnv()
 	coreauth.SetQuotaCooldownDisabled(cfg.DisableCooling)
 	coreauth.SetTransientErrorCooldownSeconds(cfg.TransientErrorCooldownSeconds)
 

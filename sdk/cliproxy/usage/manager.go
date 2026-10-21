@@ -38,10 +38,12 @@ type Record struct {
 	// IsNativeKey reports whether the client API key was authenticated by CPA's native config provider.
 	IsNativeKey bool
 	// AccessProvider identifies the client request authentication provider (e.g. "config-inline" or plugin ID).
-	AccessProvider  string
-	SessionID       string
-	ParentSessionID string
-	AuthID          string
+	AccessProvider   string
+	SessionID        string
+	ParentSessionID  string
+	TenantID         string
+	BusinessAPIKeyID string
+	AuthID           string
 	AuthIndex       string
 	// AccessTokenSHA256 identifies the OAuth token version without exposing the token.
 	AccessTokenSHA256 string
